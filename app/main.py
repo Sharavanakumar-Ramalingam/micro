@@ -306,9 +306,17 @@ def get_learner_dashboard(
         }
         credentials_with_details.append(cred_dict)
     
+    # Get skill categories from user's credentials
+    skill_categories = []
+    for cred in recent_credentials:
+        if cred.skills:
+            skill_categories.extend(cred.skills)
+    skill_categories = list(set(skill_categories))  # Remove duplicates
+    
     return {
         "stats": stats,
-        "recent_credentials": credentials_with_details
+        "recent_credentials": credentials_with_details,
+        "skill_categories": skill_categories
     }
 
 @app.get("/api/v1/dashboard/issuer", response_model=schemas.IssuerDashboard)
@@ -323,9 +331,13 @@ def get_issuer_dashboard(
     stats = crud.get_issuer_stats(db_sess, issuer.id)
     recent_issued = crud.get_credentials_by_issuer(db_sess, issuer.id, 0, 5)
     
+    # Get badge templates for the issuer
+    badge_templates = crud.get_badge_templates_by_issuer(db_sess, issuer.id, active_only=False)
+    
     return {
         "stats": stats,
         "recent_issued": recent_issued,
+        "badge_templates": badge_templates,
         "issuer_info": issuer
     }
 
@@ -343,9 +355,14 @@ def create_employer_profile(
     if existing_profile:
         raise HTTPException(status_code=400, detail="Employer profile already exists")
     
+    profile_data = profile.dict()
+    # Convert URL object to string if present
+    if 'website' in profile_data and profile_data['website'] is not None:
+        profile_data['website'] = str(profile_data['website'])
+    
     db_profile = models.EmployerProfile(
         user_id=current_user.id,
-        **profile.dict()
+        **profile_data
     )
     db.add(db_profile)
     db.commit()
