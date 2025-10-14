@@ -400,6 +400,321 @@ def create_employer_profile(
     db.refresh(db_profile)
     return db_profile
 
+@app.get("/api/v1/employer/profile")
+def get_employer_profile(
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get employer profile"""
+    profile = db.query(models.EmployerProfile).filter(models.EmployerProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Employer profile not found")
+    return profile
+
+@app.put("/api/v1/employer/profile")
+def update_employer_profile(
+    profile_update: schemas.EmployerProfile,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Update employer profile"""
+    profile = db.query(models.EmployerProfile).filter(models.EmployerProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Employer profile not found")
+    
+    for field, value in profile_update.dict(exclude_unset=True).items():
+        if hasattr(profile, field):
+            setattr(profile, field, value)
+    
+    db.commit()
+    db.refresh(profile)
+    return profile
+
+@app.get("/api/v1/employer/stats")
+def get_employer_dashboard_stats(
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get employer dashboard statistics"""
+    # Mock data for demonstration
+    return {
+        "totalCandidates": 1247,
+        "verifiedCredentials": 3892,
+        "activeJobs": 8,
+        "applicationsReceived": 156,
+        "credentialsVerifiedToday": 23,
+        "talentPoolSize": 892
+    }
+
+@app.get("/api/v1/employer/recent-activity")
+def get_employer_recent_activity(
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get recent employer activities"""
+    return [
+        {
+            "id": "1",
+            "type": "verification",
+            "title": "Credential Verified",
+            "description": "Python Developer Certificate - Rahul Sharma",
+            "timestamp": "2024-10-13T10:30:00Z",
+            "status": "success"
+        },
+        {
+            "id": "2",
+            "type": "application",
+            "title": "New Application",
+            "description": "Frontend Developer - Priya Patel applied",
+            "timestamp": "2024-10-13T08:15:00Z",
+            "status": "pending"
+        }
+    ]
+
+@app.get("/api/v1/employer/trending-skills")
+def get_trending_skills(
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get trending skills data"""
+    return [
+        {"skill": "JavaScript", "candidateCount": 245, "trend": "up", "demandScore": 92},
+        {"skill": "Python", "candidateCount": 198, "trend": "up", "demandScore": 88},
+        {"skill": "React", "candidateCount": 167, "trend": "stable", "demandScore": 85},
+        {"skill": "Node.js", "candidateCount": 134, "trend": "up", "demandScore": 82},
+        {"skill": "Digital Marketing", "candidateCount": 89, "trend": "down", "demandScore": 78},
+        {"skill": "Data Science", "candidateCount": 76, "trend": "up", "demandScore": 90}
+    ]
+
+@app.get("/api/v1/employer/candidates")
+def search_candidates(
+    skills: str = None,
+    location: str = None,
+    min_experience: int = 0,
+    max_experience: int = 20,
+    nsqf_level: str = None,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Search for candidates based on criteria"""
+    # Mock candidate data
+    return [
+        {
+            "id": "1",
+            "name": "Rahul Sharma",
+            "title": "Full Stack Developer",
+            "location": "Bangalore",
+            "experience": 4,
+            "skills": ["JavaScript", "React", "Node.js", "MongoDB"],
+            "credentials": [
+                {
+                    "id": "c1",
+                    "title": "Full Stack Web Development",
+                    "issuer": "Tech Institute",
+                    "verificationStatus": "verified",
+                    "issuedDate": "2023-06-15",
+                    "nsqfLevel": 6
+                }
+            ],
+            "rating": 4.8,
+            "isVerified": True,
+            "lastActive": "2024-10-13",
+            "availability": "available",
+            "expectedSalary": "₹8-12 LPA",
+            "summary": "Experienced full-stack developer with expertise in modern web technologies and agile methodologies."
+        }
+    ]
+
+@app.post("/api/v1/employer/verify-credential")
+def verify_credential_for_employer(
+    verification_request: dict,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Verify a credential by ID, hash, or QR code"""
+    search_method = verification_request.get("searchMethod")
+    search_value = verification_request.get("searchValue")
+    
+    # Mock verification result
+    return {
+        "id": f"ver_{search_value}",
+        "credentialId": search_value,
+        "title": "Full Stack Web Development Certification",
+        "issuer": "Tech Institute of Excellence",
+        "recipientName": "Rahul Sharma",
+        "recipientEmail": "rahul.sharma@email.com",
+        "issuedDate": "2023-06-15T00:00:00Z",
+        "expirationDate": "2026-06-15T00:00:00Z",
+        "status": "verified",
+        "nsqfLevel": 6,
+        "skills": ["JavaScript", "React", "Node.js", "MongoDB", "API Development"],
+        "verificationHash": "abc123def456ghi789jkl012mno345pqr678",
+        "blockchainTx": "0x1234567890abcdef1234567890abcdef12345678",
+        "metadata": {
+            "program": "Advanced Full Stack Development",
+            "grade": "A",
+            "creditHours": 120,
+            "institution": "Tech Institute of Excellence",
+            "certificationBody": "National Skills Development Council"
+        }
+    }
+
+@app.get("/api/v1/employer/jobs")
+def get_employer_jobs(
+    status: str = None,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get employer's job postings"""
+    return [
+        {
+            "id": "1",
+            "title": "Senior Full Stack Developer",
+            "department": "Engineering",
+            "location": "Bangalore",
+            "type": "full-time",
+            "experience": {"min": 3, "max": 7},
+            "salary": {"min": 800000, "max": 1500000, "currency": "INR"},
+            "description": "We are looking for an experienced Full Stack Developer to join our engineering team...",
+            "requirements": [
+                "Bachelor's degree in Computer Science or related field",
+                "Minimum 3 years of experience in web development",
+                "Strong proficiency in JavaScript and modern frameworks",
+                "Experience with both frontend and backend technologies"
+            ],
+            "preferredSkills": ["React", "Node.js", "MongoDB", "AWS"],
+            "requiredCredentials": [
+                {"title": "Full Stack Development Certification", "required": True, "nsqfLevel": 6}
+            ],
+            "benefits": ["Health Insurance", "Flexible Working Hours", "Learning Budget"],
+            "applicationDeadline": "2024-11-15",
+            "status": "published",
+            "applicationsCount": 24,
+            "viewsCount": 156,
+            "createdAt": "2024-10-01T00:00:00Z",
+            "updatedAt": "2024-10-05T00:00:00Z"
+        }
+    ]
+
+@app.post("/api/v1/employer/jobs")
+def create_job_posting(
+    job_data: dict,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Create a new job posting"""
+    # Mock response
+    return {
+        "id": "new_job_id",
+        "message": "Job posting created successfully",
+        **job_data
+    }
+
+@app.put("/api/v1/employer/jobs/{job_id}")
+def update_job_posting(
+    job_id: str,
+    job_data: dict,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Update a job posting"""
+    return {
+        "id": job_id,
+        "message": "Job posting updated successfully",
+        **job_data
+    }
+
+@app.delete("/api/v1/employer/jobs/{job_id}")
+def delete_job_posting(
+    job_id: str,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Delete a job posting"""
+    return {"message": "Job posting deleted successfully"}
+
+@app.patch("/api/v1/employer/jobs/{job_id}/status")
+def update_job_status(
+    job_id: str,
+    status_data: dict,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Update job posting status"""
+    return {
+        "id": job_id,
+        "status": status_data.get("status"),
+        "message": "Job status updated successfully"
+    }
+
+@app.get("/api/v1/employer/analytics")
+def get_employer_analytics(
+    period: str = "30d",
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Get employer analytics data"""
+    return {
+        "overview": {
+            "totalApplications": 324,
+            "totalCandidates": 1247,
+            "verificationRequests": 89,
+            "activeJobs": 12,
+            "applicationTrend": 15.3,
+            "candidateTrend": 8.7
+        },
+        "applicationsByMonth": [
+            {"month": "Jan", "applications": 45, "hired": 3},
+            {"month": "Feb", "applications": 52, "hired": 4},
+            {"month": "Mar", "applications": 38, "hired": 2},
+            {"month": "Apr", "applications": 67, "hired": 5},
+            {"month": "May", "applications": 78, "hired": 6},
+            {"month": "Jun", "applications": 69, "hired": 4},
+            {"month": "Jul", "applications": 84, "hired": 7},
+            {"month": "Aug", "applications": 92, "hired": 8},
+            {"month": "Sep", "applications": 76, "hired": 5},
+            {"month": "Oct", "applications": 89, "hired": 6}
+        ],
+        "topSkillsInDemand": [
+            {"skill": "JavaScript", "jobCount": 15, "candidateCount": 245, "demandRatio": 0.061},
+            {"skill": "Python", "jobCount": 12, "candidateCount": 198, "demandRatio": 0.061},
+            {"skill": "React", "jobCount": 18, "candidateCount": 167, "demandRatio": 0.108}
+        ],
+        "locationAnalytics": [
+            {"location": "Bangalore", "jobCount": 25, "applicationCount": 156, "averageSalary": 1200000},
+            {"location": "Mumbai", "jobCount": 18, "applicationCount": 134, "averageSalary": 1100000}
+        ],
+        "credentialAnalytics": [
+            {"credentialType": "Software Development", "verificationCount": 45, "successRate": 0.92, "nsqfLevel": 6},
+            {"credentialType": "Data Science", "verificationCount": 28, "successRate": 0.89, "nsqfLevel": 7}
+        ],
+        "hiringFunnel": {
+            "totalApplications": 324,
+            "screeningPassed": 156,
+            "interviewScheduled": 89,
+            "interviewed": 67,
+            "offered": 23,
+            "hired": 18
+        }
+    }
+
+@app.post("/api/v1/employer/contact/{candidate_id}")
+def contact_candidate(
+    candidate_id: str,
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Contact a candidate"""
+    return {"message": f"Contact request sent to candidate {candidate_id}"}
+
+@app.post("/api/v1/employer/request-verification")
+def request_company_verification(
+    current_user: models.User = Depends(auth.require_role([models.UserRole.employer])),
+    db: Session = Depends(get_db)
+):
+    """Request company verification"""
+    return {"message": "Verification request submitted successfully"}
+
 @app.get("/api/v1/nsqf/levels")
 def get_nsqf_levels():
     """Get all NSQF levels and their descriptions"""

@@ -15,6 +15,11 @@ import VerifyCredential from './pages/VerifyCredential';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import IssuerDashboard from './pages/issuer/IssuerDashboard';
 import EmployerDashboard from './pages/employer/EmployerDashboard';
+import EmployerTalentSearch from './pages/employer/EmployerTalentSearch';
+import EmployerCredentialVerification from './pages/employer/EmployerCredentialVerification';
+import EmployerJobPosting from './pages/employer/EmployerJobPosting';
+import EmployerAnalytics from './pages/employer/EmployerAnalytics';
+import EmployerProfile from './pages/employer/EmployerProfile';
 import LearnerDashboard from './pages/learner/LearnerDashboard';
 import LearnerProfile from './pages/learner/LearnerProfile';
 import LearnerCredentials from './pages/learner/LearnerCredentials';
@@ -97,6 +102,46 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['employer']}>
                     <EmployerDashboard />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/employer/talent-search" 
+                element={
+                  <PrivateRoute allowedRoles={['employer']}>
+                    <EmployerTalentSearch />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/employer/verify-credential" 
+                element={
+                  <PrivateRoute allowedRoles={['employer']}>
+                    <EmployerCredentialVerification />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/employer/post-job" 
+                element={
+                  <PrivateRoute allowedRoles={['employer']}>
+                    <EmployerJobPosting />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/employer/analytics" 
+                element={
+                  <PrivateRoute allowedRoles={['employer']}>
+                    <EmployerAnalytics />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/employer/profile" 
+                element={
+                  <PrivateRoute allowedRoles={['employer']}>
+                    <EmployerProfile />
                   </PrivateRoute>
                 } 
               />

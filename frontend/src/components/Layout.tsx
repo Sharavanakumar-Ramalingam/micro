@@ -13,7 +13,10 @@ import {
   Menu,
   X,
   Globe,
-  Share
+  Share,
+  Search,
+  Plus,
+  BarChart
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -45,7 +48,15 @@ const Layout = ({ children }: LayoutProps) => {
   } else if (user?.role === 'issuer') {
     navigation.unshift({ name: 'Issuer Panel', href: '/issuer', icon: Settings });
   } else if (user?.role === 'employer') {
-    navigation.unshift({ name: 'Employer Panel', href: '/employer', icon: Settings });
+    // Replace with employer-specific navigation
+    navigation = [
+      { name: t('Dashboard'), href: '/employer', icon: Home },
+      { name: t('Talent Search'), href: '/employer/talent-search', icon: Search },
+      { name: t('Verify Credentials'), href: '/employer/verify-credential', icon: FileText },
+      { name: t('Job Postings'), href: '/employer/post-job', icon: Plus },
+      { name: t('Analytics'), href: '/employer/analytics', icon: BarChart },
+      { name: t('Company Profile'), href: '/employer/profile', icon: User },
+    ];
   } else if (user?.role === 'learner') {
     // Replace with learner-specific navigation
     navigation = [
