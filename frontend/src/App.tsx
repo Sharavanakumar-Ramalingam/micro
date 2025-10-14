@@ -9,7 +9,6 @@ import { PublicRoute } from './components/PublicRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
 import Credentials from './pages/Credentials';
 import BadgeTemplates from './pages/BadgeTemplates';
 import VerifyCredential from './pages/VerifyCredential';
@@ -17,6 +16,11 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import IssuerDashboard from './pages/issuer/IssuerDashboard';
 import EmployerDashboard from './pages/employer/EmployerDashboard';
 import LearnerDashboard from './pages/learner/LearnerDashboard';
+import LearnerProfile from './pages/learner/LearnerProfile';
+import LearnerCredentials from './pages/learner/LearnerCredentials';
+import CredentialDetail from './pages/learner/CredentialDetail';
+import LearnerSkills from './pages/learner/LearnerSkills';
+import LearnerSharing from './pages/learner/LearnerSharing';
 
 function App() {
   return (
@@ -51,14 +55,6 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Dashboard />
-                  </PrivateRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <PrivateRoute>
-                    <Profile />
                   </PrivateRoute>
                 } 
               />
@@ -109,6 +105,46 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={['learner']}>
                     <LearnerDashboard />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/learner/credentials" 
+                element={
+                  <PrivateRoute allowedRoles={['learner']}>
+                    <LearnerCredentials />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/credentials/:id" 
+                element={
+                  <PrivateRoute allowedRoles={['learner']}>
+                    <CredentialDetail />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/learner/skills" 
+                element={
+                  <PrivateRoute allowedRoles={['learner']}>
+                    <LearnerSkills />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/learner/sharing" 
+                element={
+                  <PrivateRoute allowedRoles={['learner']}>
+                    <LearnerSharing />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <PrivateRoute allowedRoles={['learner']}>
+                    <LearnerProfile />
                   </PrivateRoute>
                 } 
               />

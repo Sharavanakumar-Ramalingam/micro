@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Globe,
+  Share
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -31,14 +32,14 @@ const Layout = ({ children }: LayoutProps) => {
     navigate('/login');
   };
 
-  const navigation = [
+  let navigation = [
     { name: t('nav.dashboard'), href: '/dashboard', icon: Home },
     { name: t('nav.credentials'), href: '/credentials', icon: FileText },
     { name: t('nav.badges'), href: '/badge-templates', icon: Star },
     { name: t('nav.profile'), href: '/profile', icon: User },
   ];
 
-  // Add role-specific navigation
+  // Replace navigation for different roles
   if (user?.role === 'admin') {
     navigation.unshift({ name: 'Admin Panel', href: '/admin', icon: Settings });
   } else if (user?.role === 'issuer') {
@@ -46,7 +47,14 @@ const Layout = ({ children }: LayoutProps) => {
   } else if (user?.role === 'employer') {
     navigation.unshift({ name: 'Employer Panel', href: '/employer', icon: Settings });
   } else if (user?.role === 'learner') {
-    navigation.unshift({ name: 'My Learning', href: '/learner', icon: Settings });
+    // Replace with learner-specific navigation
+    navigation = [
+      { name: t('Dashboard'), href: '/learner', icon: Home },
+      { name: t('My Credentials'), href: '/learner/credentials', icon: FileText },
+      { name: t('Skills & NSQF'), href: '/learner/skills', icon: Star },
+      { name: t('Sharing & Views'), href: '/learner/sharing', icon: Share },
+      { name: t('Profile'), href: '/profile', icon: User },
+    ];
   }
 
   return (

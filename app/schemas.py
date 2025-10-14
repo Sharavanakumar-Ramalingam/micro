@@ -164,6 +164,11 @@ class CredentialOut(CredentialBase):
     shared_on_linkedin: bool
     issued_at: datetime
     updated_at: Optional[datetime] = None
+    nsqf_level: Optional[int] = None  # NSQF level from metadata
+    issuer: Optional[str] = None  # Issuer name for frontend
+    issue_date: Optional[datetime] = None  # Alias for issued_at
+    verification_status: str = "verified"  # Default verification status
+    credential_type: Optional[str] = None  # Type based on badge template
     class Config:
         from_attributes = True
 

@@ -201,7 +201,7 @@ def issue_credential(
     
     return crud.create_credential(db_sess, credential, issuer.id)
 
-@app.get("/api/v1/credentials", response_model=List[schemas.CredentialOut])
+@app.get("/api/v1/credentials")
 def get_my_credentials(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
@@ -209,7 +209,38 @@ def get_my_credentials(
     db_sess: Session = Depends(get_db)
 ):
     if current_user.role == schemas.UserRole.learner:
-        return crud.get_credentials_by_learner(db_sess, current_user.id, skip, limit)
+        credentials = crud.get_credentials_by_learner(db_sess, current_user.id, skip, limit)
+        
+        # Convert to dict format for frontend compatibility
+        result = []
+        for cred in credentials:
+            # Get metadata
+            metadata = db_sess.query(models.CredentialMetadata).filter(
+                models.CredentialMetadata.credential_id == cred.id
+            ).first()
+            
+            cred_dict = {
+                "id": str(cred.id),
+                "title": cred.title,
+                "description": cred.description,
+                "issuer": cred.issuer.name if cred.issuer else "Unknown",
+                "issue_date": cred.issued_at.isoformat(),
+                "expiry_date": cred.expiry_date.isoformat() if cred.expiry_date else None,
+                "status": "active" if cred.status == models.CredentialStatus.issued else cred.status.value,
+                "verification_status": "verified" if cred.status in [models.CredentialStatus.issued, models.CredentialStatus.verified] else "pending",
+                "credential_type": cred.badge_template.badge_type.value if cred.badge_template else "certificate",
+                "skills": cred.skills or [],
+                "nsqf_level": metadata.nsqf_level if metadata else None,
+                "metadata": {
+                    "verification_code": cred.verification_code,
+                    "public_url": cred.public_url,
+                    "shared_on_linkedin": cred.shared_on_linkedin
+                }
+            }
+            result.append(cred_dict)
+        
+        return result
+        
     elif current_user.role == schemas.UserRole.issuer:
         issuer = crud.get_issuer_by_user_id(db_sess, current_user.id)
         if not issuer:

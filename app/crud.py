@@ -213,12 +213,28 @@ def get_public_credential(db: Session, public_url: str):
     ).first()
 
 def get_credentials_by_learner(db: Session, learner_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.Credential).options(
+    credentials = db.query(models.Credential).options(
         joinedload(models.Credential.issuer),
         joinedload(models.Credential.badge_template)
     ).filter(
         models.Credential.learner_id == learner_id
     ).offset(skip).limit(limit).all()
+    
+    # Enrich credentials with metadata
+    for credential in credentials:
+        # Add metadata if exists
+        metadata = db.query(models.CredentialMetadata).filter(
+            models.CredentialMetadata.credential_id == credential.id
+        ).first()
+        
+        # Set additional fields for frontend compatibility
+        credential.nsqf_level = metadata.nsqf_level if metadata else None
+        credential.issuer_name = credential.issuer.name if credential.issuer else "Unknown"
+        credential.issue_date = credential.issued_at
+        credential.verification_status = "verified" if credential.status == models.CredentialStatus.verified else "pending"
+        credential.credential_type = credential.badge_template.badge_type.value if credential.badge_template else "certificate"
+    
+    return credentials
 
 def get_public_credentials_by_learner(db: Session, learner_id: int, skip: int = 0, limit: int = 100):
     return db.query(models.Credential).options(
