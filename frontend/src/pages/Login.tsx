@@ -1,8 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Eye, EyeOff, Globe, Award } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +10,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { login } = useAuth();
-  const { t, currentLanguage, setCurrentLanguage, supportedLanguages } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -30,73 +28,59 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Language Selector */}
-        <div className="flex justify-end">
-          <div className="relative">
-            <select
-              value={currentLanguage.code}
-              onChange={(e) => {
-                const lang = supportedLanguages.find(l => l.code === e.target.value);
-                if (lang) setCurrentLanguage(lang);
-              }}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl flex overflow-hidden max-w-4xl w-full transition-all duration-700 ease-in-out transform hover:scale-[1.02]">
+        {/* Left Side - Welcome Panel */}
+        <div className="hidden md:block md:w-1/2 animated-gradient p-12 text-white relative overflow-hidden transition-all duration-700 ease-in-out form-enter-left">
+          <div className="relative z-10 h-full flex flex-col justify-center transform transition-all duration-700 ease-in-out">
+            <h2 className="text-4xl font-bold mb-4 transform transition-all duration-500 ease-in-out hover:scale-105 floating">
+              Welcome Back!
+            </h2>
+            <p className="text-blue-100 mb-8 text-lg leading-relaxed transform transition-all duration-500 ease-in-out delay-100">
+              To keep connected with us please login with your personal info
+            </p>
+            <Link
+              to="/register"
+              className="inline-block border-2 border-white text-white font-semibold py-3 px-8 rounded-full hover:bg-white hover:text-blue-600 transition-all duration-500 ease-in-out text-center transform hover:scale-105 hover:shadow-lg scale-hover button-press"
             >
-              {supportedLanguages.map((lang) => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.nativeName}
-                </option>
-              ))}
-            </select>
-            <Globe className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              SIGN UP
+            </Link>
           </div>
+          
+          {/* Decorative Elements with Animation */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -mr-16 -mt-16 floating"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-5 rounded-full -ml-24 -mb-24 slow-bounce"></div>
         </div>
 
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <Award className="w-12 h-12 text-primary-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-gradient">
-            {t('app.title')}
-          </h2>
-          <p className="mt-2 text-sm text-secondary-600">
-            Digital Credential Management Platform
-          </p>
-          <h3 className="mt-6 text-xl font-semibold text-secondary-900">
-            {t('auth.login')}
-          </h3>
-        </div>
+        {/* Right Side - Form */}
+        <div className="w-full md:w-1/2 p-8 md:p-12 transition-all duration-700 ease-in-out form-enter-right">
+          <div className="max-w-md mx-auto transform transition-all duration-500 ease-in-out form-enter stagger-1">
+            <h2 className="text-3xl font-bold text-gray-800 text-center mb-2 transform transition-all duration-500 ease-in-out hover:scale-105 stagger-2">
+              Sign In
+            </h2>
+            <p className="text-gray-600 text-center mb-8 transform transition-all duration-500 ease-in-out delay-100 stagger-3">
+              Welcome back! Please sign in to your account
+            </p>
 
-        {/* Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-1">
-                {t('auth.email')}
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="Enter your email"
-                disabled={isLoading}
-              />
-            </div>
+            <form className="space-y-6 transform transition-all duration-500 ease-in-out form-enter stagger-4" onSubmit={handleSubmit}>
+              {/* Email Field */}
+              <div className="transform transition-all duration-300 ease-in-out hover:scale-105 stagger-5">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 ease-in-out focus:scale-105 hover:shadow-md input-glow"
+                  placeholder="Email"
+                  disabled={isLoading}
+                />
+              </div>
 
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-secondary-700 mb-1">
-                {t('auth.password')}
-              </label>
-              <div className="relative">
+              {/* Password Field */}
+              <div className="relative transform transition-all duration-300 ease-in-out hover:scale-105 stagger-6">
                 <input
                   id="password"
                   name="password"
@@ -105,67 +89,67 @@ const Login = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pr-10"
-                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-300 ease-in-out focus:scale-105 hover:shadow-md input-glow"
+                  placeholder="Password"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center transition-all duration-200 ease-in-out hover:scale-110 scale-hover"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-400" />
+                    <EyeOff className="w-5 h-5 text-gray-400 transition-all duration-200 ease-in-out hover:text-blue-500" />
                   ) : (
-                    <Eye className="w-5 h-5 text-gray-400" />
+                    <Eye className="w-5 h-5 text-gray-400 transition-all duration-200 ease-in-out hover:text-blue-500" />
                   )}
                 </button>
               </div>
-            </div>
-          </div>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading || !email || !password}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  {t('common.loading')}
-                </>
-              ) : (
-                t('auth.login')
-              )}
-            </button>
-          </div>
+              {/* Submit Button */}
+              <div className="transform transition-all duration-300 ease-in-out hover:scale-105 stagger-1">
+                <button
+                  type="submit"
+                  disabled={isLoading || !email || !password}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center transform hover:scale-105 hover:shadow-lg button-press"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Loading...
+                    </>
+                  ) : (
+                    'SIGN IN'
+                  )}
+                </button>
+              </div>
 
-          {/* Register Link */}
-          <div className="text-center">
-            <span className="text-sm text-secondary-600">
-              Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
-              >
-                {t('auth.register')}
-              </Link>
-            </span>
-          </div>
+              {/* Register Link */}
+              <div className="text-center mt-6 transform transition-all duration-300 ease-in-out hover:scale-105 stagger-2">
+                <span className="text-gray-600">
+                  Don't have an account?{' '}
+                  <Link
+                    to="/register"
+                    className="text-blue-600 hover:text-blue-700 font-medium transition-all duration-300 ease-in-out hover:underline transform hover:scale-110 inline-block scale-hover"
+                  >
+                    Sign Up
+                  </Link>
+                </span>
+              </div>
 
-          {/* Demo Credentials */}
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials</h4>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Learner:</strong> fresh_learner@test.com / password123</p>
-              <p><strong>Issuer:</strong> fresh_issuer@test.com / password123</p>
-              <p><strong>Employer:</strong> fresh_employer@test.com / password123</p>
-              <p><strong>Admin:</strong> fresh_admin@test.com / password123</p>
-            </div>
+              {/* Demo Credentials */}
+              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md scale-hover stagger-3">
+                <h4 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials</h4>
+                <div className="text-xs text-blue-700 space-y-1">
+                  <p><strong>Learner:</strong> fresh_learner@test.com / password123</p>
+                  <p><strong>Issuer:</strong> fresh_issuer@test.com / password123</p>
+                  <p><strong>Employer:</strong> fresh_employer@test.com / password123</p>
+                  <p><strong>Admin:</strong> fresh_admin@test.com / password123</p>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

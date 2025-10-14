@@ -5,6 +5,9 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { PrivateRoute } from './components/PrivateRoute';
 import { PublicRoute } from './components/PublicRoute';
 
+// Import custom animations
+import './styles/animations.css';
+
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
